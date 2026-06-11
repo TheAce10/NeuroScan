@@ -1,0 +1,52 @@
+# Miscellaneous / local-only files not relevant to the published repo
+misc/
+
+# Model weights — large binaries, store on HuggingFace Hub or shared drive
+weights/**
+!weights/README.md
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.Python
+*.egg-info/
+.venv/
+venv/
+*.pkl
+
+# Node / frontend build
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Logs
+*.log
+logs/
+
+# Secrets — NEVER commit these
+.env
+.env.*
+!.env.example
+.kaggle/
+kaggle.json
+*_token*
+*_key*
+*_secret*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo *.sln *.sw?
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Compiled / dist output
+*.pt.tmp

@@ -1,0 +1,16 @@
+{
+  "id": "blesselikem/neuroscan-inceptionv3",
+  "title": "NeuroScan InceptionV3",
+  "code_file": "neuroscan_inception.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "masoudnickparvar/brain-tumor-mri-dataset"
+  ],
+  "competition_sources": [],
+  "kernel_sources": []
+}

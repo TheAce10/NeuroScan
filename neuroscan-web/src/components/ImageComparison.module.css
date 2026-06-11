@@ -1,0 +1,156 @@
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+.panel {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 180ms ease;
+}
+
+.panel:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.panelDisabled {
+  opacity: 0.6;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.panelLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--blue-800);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--gray-500);
+  background: var(--gray-200);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.imgWrap {
+  position: relative;
+  aspect-ratio: 1;
+  background: var(--gray-900);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.enlargeBtn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(10,31,60,.7);
+  border: none;
+  color: var(--white);
+  border-radius: var(--radius-sm);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.imgWrap:hover .enlargeBtn {
+  opacity: 1;
+}
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--gray-500);
+  font-size: 0.8rem;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+/* Lightbox */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.75);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 150ms ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.lightboxInner {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  max-width: 700px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+}
+
+.lightboxHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--blue-800);
+  color: var(--white);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  opacity: 0.8;
+  transition: opacity 150ms ease;
+}
+.closeBtn:hover { opacity: 1; }
+
+.lightboxImg {
+  width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  background: var(--gray-900);
+}
