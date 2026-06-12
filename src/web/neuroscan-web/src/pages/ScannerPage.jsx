@@ -38,7 +38,6 @@ export default function ScannerPage() {
 
     const img = new window.Image();
     img.onload = () => {
-      // Sample a 100×100 thumbnail to check colour saturation
       const canvas = document.createElement('canvas');
       canvas.width = 100; canvas.height = 100;
       canvas.getContext('2d').drawImage(img, 0, 0, 100, 100);
@@ -54,7 +53,7 @@ export default function ScannerPage() {
 
       if (avgSat > 0.15) {
         setWarn({
-          text: 'This image appears to be in colour. Brain MRI scans are grayscale — any result produced will be meaningless. Please upload a T1 or T2-weighted MRI scan for valid classification.',
+          text: 'This image appears to be in colour. Brain MRI scans are grayscale — any result produced will be meaningless. Please upload a T1 or T2-weighted MRI scan.',
           strong: true,
         });
       } else {
@@ -79,8 +78,7 @@ export default function ScannerPage() {
         const sx = (img.width - size) / 2;
         const sy = (img.height - size) / 2;
         const canvas = document.createElement('canvas');
-        canvas.width = 300;
-        canvas.height = 300;
+        canvas.width = 300; canvas.height = 300;
         canvas.getContext('2d').drawImage(img, sx, sy, size, size, 0, 0, 300, 300);
         URL.revokeObjectURL(url);
         canvas.toBlob(resolve, 'image/jpeg', 0.92);
@@ -109,23 +107,26 @@ export default function ScannerPage() {
     }
   }
 
-  const hasResult = result !== null;
+  const lowConfidence = result && (result.confidence ?? 0) < 0.65;
 
   return (
     <>
       <NavBar />
 
       <main className={styles.main}>
-        <div className={styles.container}>
 
-          <section className={styles.leftCol}>
+        {/* ── Inputs row ── */}
+        <div className={styles.inputsGrid}>
+          <div className={styles.inputLeft}>
             <div className={styles.sectionTitle}>
               <span className={styles.step}>1</span>
               Upload MRI Scan
             </div>
             <UploadZone onFile={handleFile} isLoading={isLoading} />
+          </div>
 
-            <div className={styles.sectionTitle} style={{ marginTop: 24 }}>
+          <div className={styles.inputRight}>
+            <div className={styles.sectionTitle}>
               <span className={styles.step}>2</span>
               Select Model
             </div>
@@ -150,7 +151,7 @@ export default function ScannerPage() {
 
             {warn.text && (
               <div className={warn.strong ? styles.warnBoxStrong : styles.warnBox}>
-                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" style={{ flexShrink: 0 }}>
+                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" style={{ flexShrink: 0, marginTop: 1 }}>
                   <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
                 </svg>
                 <span>{warn.text}</span>
@@ -159,38 +160,31 @@ export default function ScannerPage() {
 
             {error && (
               <div className={styles.errorBox}>
-                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" style={{ flexShrink: 0 }}>
+                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" style={{ flexShrink: 0, marginTop: 1 }}>
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
                 </svg>
                 <span>{error}</span>
               </div>
             )}
-          </section>
+          </div>
+        </div>
 
-          <section className={styles.rightCol}>
-            {!hasResult && !isLoading && (
-              <div className={styles.emptyState}>
-                <svg className={styles.emptyIcon} viewBox="0 0 80 80" fill="none">
-                  <circle cx="40" cy="40" r="38" stroke="currentColor" strokeWidth="1.5" strokeDasharray="6 4" />
-                  <circle cx="40" cy="40" r="18" stroke="currentColor" strokeWidth="1.5" />
-                  <circle cx="40" cy="40" r="5" fill="currentColor" opacity=".4" />
-                  <path d="M40 22v-8M40 66v-8M22 40h-8M66 40h-8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-                <p className={styles.emptyTitle}>No results yet</p>
-                <p className={styles.emptyHint}>Upload an MRI scan and click <strong>Analyse Scan</strong></p>
-              </div>
-            )}
+        {/* ── Loading ── */}
+        {isLoading && (
+          <div className={styles.loadingState}>
+            <div className={styles.loadingRing} />
+            <p>Running inference&hellip;</p>
+            <p className={styles.loadingHint}>This may take 15–60 seconds on first run</p>
+          </div>
+        )}
 
-            {isLoading && (
-              <div className={styles.loadingState}>
-                <div className={styles.loadingRing} />
-                <p>Running inference&hellip;</p>
-                <p className={styles.loadingHint}>Ensemble · Grad-CAM</p>
-              </div>
-            )}
+        {/* ── Results row ── */}
+        {result && !isLoading && (
+          <>
+            <hr className={styles.divider} />
+            <div className={styles.resultsGrid}>
 
-            {hasResult && (
-              <div className={styles.results}>
+              <div>
                 <div className={styles.sectionTitle}>
                   <span className={styles.step} style={{ background: 'var(--blue-600)' }}>3</span>
                   Classification Result
@@ -218,28 +212,31 @@ export default function ScannerPage() {
                   <ProbabilityBars scores={result.scores} prediction={result.class} />
                 </div>
 
-                {(result.confidence ?? 0) < 0.65 && (
+                {lowConfidence && (
                   <div className={styles.lowConfidenceBanner}>
-                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" style={{ flexShrink: 0 }}>
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" style={{ flexShrink: 0, marginTop: 1 }}>
                       <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
                     </svg>
                     <div>
                       <strong>Low confidence ({Math.round((result.confidence ?? 0) * 100)}%)</strong>
-                      <span> — the model is uncertain. This may indicate an ambiguous scan, an unusual presentation, or a non-MRI image. Do not rely on this result.</span>
+                      <span> — the model is uncertain. This may indicate an ambiguous scan, unusual presentation, or a non-MRI image. Do not rely on this result.</span>
                     </div>
                   </div>
                 )}
+              </div>
 
-                <div className={styles.sectionTitle} style={{ marginTop: 24 }}>
+              <div>
+                <div className={styles.sectionTitle}>
                   <span className={styles.step} style={{ background: 'var(--blue-600)' }}>4</span>
                   Scan Visualisation
                 </div>
                 <ImageComparison original={previewUrl} heatmap={result.heatmap} />
               </div>
-            )}
-          </section>
 
-        </div>
+            </div>
+          </>
+        )}
+
       </main>
 
       <Footer />
