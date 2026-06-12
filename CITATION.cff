@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+title: "NeuroScan: Brain Tumour MRI Classification using Transfer Learning"
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+  - family-names: Krapah
+    given-names: Elikem
+    email: krapahbless@gmail.com
+repository-code: https://github.com/TheAce10/NeuroScan
+abstract: >
+  NeuroScan is a brain tumour MRI classification system using an ensemble of
+  EfficientNetB3, VGG16, and DenseNet121 trained with focal loss. Achieves
+  91.8% accuracy on the Brain Tumor MRI Dataset with a React/FastAPI web
+  interface and Grad-CAM visualisation.
+keywords:
+  - brain tumour classification
+  - medical imaging
+  - transfer learning
+  - deep learning
+  - MRI
+  - ensemble learning
+license: MIT
+version: "2.0"
+date-released: "2026-06-12"

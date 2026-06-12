@@ -1,0 +1,21 @@
+name: neuroscan
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+    - torch==2.2.0
+    - torchvision==0.17.0
+    - fastapi
+    - uvicorn[standard]
+    - pillow
+    - numpy
+    - matplotlib
+    - scikit-learn
+    - python-multipart
+    - huggingface_hub
+    - tqdm
+    - pandas
