@@ -1,4 +1,4 @@
-import io, base64
+import io, base64, os
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Dict, Optional
@@ -15,8 +15,28 @@ from fastapi import FastAPI, File, UploadFile, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 CLASS_NAMES  = ['glioma', 'meningioma', 'notumor', 'pituitary']
-WEIGHTS_ROOT = Path(__file__).resolve().parent.parent.parent / "weights" / "neuroscan"
 DEVICE       = torch.device("cpu")
+
+# When running on HF Spaces, weights are downloaded from HF Hub.
+# When running locally, weights are loaded from the local path.
+HF_REPO      = "The-Ace-000/neuroscan-weights"
+WEIGHTS_ROOT = Path(__file__).resolve().parent.parent.parent / "weights" / "neuroscan"
+
+
+def resolve_weight(local_path: Path, hf_filename: str) -> Path:
+    """Return local path if it exists, otherwise download from HF Hub."""
+    if local_path.exists():
+        return local_path
+    try:
+        from huggingface_hub import hf_hub_download
+        cache = Path(__file__).resolve().parent / "weights_cache"
+        cache.mkdir(exist_ok=True)
+        downloaded = hf_hub_download(repo_id=HF_REPO, filename=hf_filename,
+                                     local_dir=str(cache))
+        return Path(downloaded)
+    except Exception as e:
+        print(f"  [warn] Could not download {hf_filename} from HF Hub: {e}")
+        return local_path
 MEAN         = [0.485, 0.456, 0.406]
 STD          = [0.229, 0.224, 0.225]
 
@@ -54,19 +74,28 @@ def build_densenet121():
 MODEL_CONFIGS = {
     "efficientnet_b3": {
         "builder":  build_efficientnet_b3,
-        "weights":  WEIGHTS_ROOT / "efficientnet_b3" / "outputs" / "efficientnet_b3_neuroscan.pt",
+        "weights":  resolve_weight(
+            WEIGHTS_ROOT / "efficientnet_b3" / "outputs" / "efficientnet_b3_neuroscan.pt",
+            "efficientnet_b3_neuroscan.pt",
+        ),
         "img_size": 224,
         "display":  "EfficientNetB3",
     },
     "vgg16": {
         "builder":  build_vgg16,
-        "weights":  WEIGHTS_ROOT / "vgg16" / "checkpoints" / "phase2_best.pt",
+        "weights":  resolve_weight(
+            WEIGHTS_ROOT / "vgg16" / "checkpoints" / "phase2_best.pt",
+            "vgg16_phase2_best.pt",
+        ),
         "img_size": 224,
         "display":  "VGG16",
     },
     "densenet121": {
         "builder":  build_densenet121,
-        "weights":  WEIGHTS_ROOT / "densenet121" / "outputs" / "densenet121_neuroscan.pt",
+        "weights":  resolve_weight(
+            WEIGHTS_ROOT / "densenet121" / "outputs" / "densenet121_neuroscan.pt",
+            "densenet121_neuroscan.pt",
+        ),
         "img_size": 224,
         "display":  "DenseNet121",
     },

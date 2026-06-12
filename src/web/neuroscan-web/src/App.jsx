@@ -10,7 +10,7 @@ import ImageComparison from './components/ImageComparison';
 import { predict } from './api/neuroscan';
 import styles from './App.module.css';
 
-const DEFAULT_ENDPOINT = 'http://localhost:8000';
+const DEFAULT_ENDPOINT = import.meta.env.VITE_API_URL || 'https://the-ace-000-neuroscan-api.hf.space';
 
 const CLASS_LABELS = {
   glioma:     'Glioma',
