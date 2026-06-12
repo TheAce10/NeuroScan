@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 import UploadZone from '../components/UploadZone';
@@ -25,21 +25,46 @@ export default function ScannerPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
-  const [warn, setWarn] = useState('');
+  const [warn, setWarn] = useState({ text: '', strong: false });
 
   const handleFile = useCallback((f) => {
     setFile(f);
     setResult(null);
     setError('');
-    setWarn('');
+    setWarn({ text: '', strong: false });
     if (!f) { setPreviewUrl(null); return; }
     const url = URL.createObjectURL(f);
     setPreviewUrl(url);
+
     const img = new window.Image();
     img.onload = () => {
-      const ratio = Math.max(img.width, img.height) / Math.min(img.width, img.height);
-      if (ratio > 1.4) {
-        setWarn('This image looks like a portrait photo rather than an MRI scan. It will be center-cropped to square before analysis — results may be unreliable on non-MRI images.');
+      // Sample a 100×100 thumbnail to check colour saturation
+      const canvas = document.createElement('canvas');
+      canvas.width = 100; canvas.height = 100;
+      canvas.getContext('2d').drawImage(img, 0, 0, 100, 100);
+      const data = canvas.getContext('2d').getImageData(0, 0, 100, 100).data;
+      let totalSat = 0, count = 0;
+      for (let i = 0; i < data.length; i += 16) {
+        const r = data[i], g = data[i + 1], b = data[i + 2];
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        totalSat += max === 0 ? 0 : (max - min) / max;
+        count++;
+      }
+      const avgSat = totalSat / count;
+
+      if (avgSat > 0.15) {
+        setWarn({
+          text: 'This image appears to be in colour. Brain MRI scans are grayscale — any result produced will be meaningless. Please upload a T1 or T2-weighted MRI scan for valid classification.',
+          strong: true,
+        });
+      } else {
+        const ratio = Math.max(img.width, img.height) / Math.min(img.width, img.height);
+        if (ratio > 1.4) {
+          setWarn({
+            text: 'Portrait-format image detected. It will be center-cropped to square before analysis.',
+            strong: false,
+          });
+        }
       }
     };
     img.src = url;
@@ -123,12 +148,12 @@ export default function ScannerPage() {
               )}
             </button>
 
-            {warn && !isLoading && (
-              <div className={styles.warnBox}>
+            {warn.text && (
+              <div className={warn.strong ? styles.warnBoxStrong : styles.warnBox}>
                 <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" style={{ flexShrink: 0 }}>
                   <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
                 </svg>
-                <span>{warn}</span>
+                <span>{warn.text}</span>
               </div>
             )}
 
@@ -192,6 +217,18 @@ export default function ScannerPage() {
                   </div>
                   <ProbabilityBars scores={result.scores} prediction={result.class} />
                 </div>
+
+                {(result.confidence ?? 0) < 0.65 && (
+                  <div className={styles.lowConfidenceBanner}>
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" style={{ flexShrink: 0 }}>
+                      <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                    </svg>
+                    <div>
+                      <strong>Low confidence ({Math.round((result.confidence ?? 0) * 100)}%)</strong>
+                      <span> — the model is uncertain. This may indicate an ambiguous scan, an unusual presentation, or a non-MRI image. Do not rely on this result.</span>
+                    </div>
+                  </div>
+                )}
 
                 <div className={styles.sectionTitle} style={{ marginTop: 24 }}>
                   <span className={styles.step} style={{ background: 'var(--blue-600)' }}>4</span>
