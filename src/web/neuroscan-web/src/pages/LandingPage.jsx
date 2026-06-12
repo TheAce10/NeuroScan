@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import NavBar from '../components/NavBar';
 import styles from './LandingPage.module.css';
 
 const SLIDES = [
@@ -52,16 +53,7 @@ export default function LandingPage() {
   return (
     <div className={styles.page}>
 
-      {/* ── Nav ── */}
-      <nav className={styles.nav}>
-        <div className={styles.navInner}>
-          <div className={styles.navBrand}>
-            <img src="/NeuroScan/ccre-logo.png" alt="CCRE" className={styles.navLogo} />
-            <span className={styles.navTitle}>CCRE <span style={{ fontWeight: 400, opacity: 0.45, margin: '0 4px' }}>|</span> NeuroScan</span>
-          </div>
-          <Link to="/scan" className={styles.navCta}>Launch Scanner</Link>
-        </div>
-      </nav>
+      <NavBar />
 
       {/* ── Hero ── */}
       <header className={styles.hero}>

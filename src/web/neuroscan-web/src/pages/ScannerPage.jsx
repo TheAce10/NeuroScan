@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import Header from '../components/Header';
+import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 import UploadZone from '../components/UploadZone';
 import ModelSelector from '../components/ModelSelector';
@@ -57,13 +56,7 @@ export default function ScannerPage() {
 
   return (
     <>
-      <Header />
-
-      <div className={styles.backBar}>
-        <Link to="/" className={styles.backLink}>
-          ← Back to overview
-        </Link>
-      </div>
+      <NavBar />
 
       <main className={styles.main}>
         <div className={styles.container}>
