@@ -12,7 +12,7 @@ export default function NavBar() {
           <Link to="/" className={styles.brand}>
             <img src="/NeuroScan/ccre-logo.png" alt="CCRE" className={styles.logo} />
             <span className={styles.title}>
-              CCRE <span className={styles.sep}>|</span> NeuroScan
+              CCRE <span className={styles.sep}>|</span><span className={styles.appName}> NeuroScan</span>
             </span>
           </Link>
           <div className={styles.right}>

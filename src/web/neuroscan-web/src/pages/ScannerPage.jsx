@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import NavBar from '../components/NavBar';
 import Footer from '../components/Footer';
 import UploadZone from '../components/UploadZone';
@@ -25,13 +25,44 @@ export default function ScannerPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
+  const [warn, setWarn] = useState('');
 
   const handleFile = useCallback((f) => {
     setFile(f);
     setResult(null);
     setError('');
-    setPreviewUrl(f ? URL.createObjectURL(f) : null);
+    setWarn('');
+    if (!f) { setPreviewUrl(null); return; }
+    const url = URL.createObjectURL(f);
+    setPreviewUrl(url);
+    const img = new window.Image();
+    img.onload = () => {
+      const ratio = Math.max(img.width, img.height) / Math.min(img.width, img.height);
+      if (ratio > 1.4) {
+        setWarn('This image looks like a portrait photo rather than an MRI scan. It will be center-cropped to square before analysis — results may be unreliable on non-MRI images.');
+      }
+    };
+    img.src = url;
   }, []);
+
+  async function preprocessToSquare(f) {
+    return new Promise((resolve) => {
+      const img = new window.Image();
+      const url = URL.createObjectURL(f);
+      img.onload = () => {
+        const size = Math.min(img.width, img.height);
+        const sx = (img.width - size) / 2;
+        const sy = (img.height - size) / 2;
+        const canvas = document.createElement('canvas');
+        canvas.width = 300;
+        canvas.height = 300;
+        canvas.getContext('2d').drawImage(img, sx, sy, size, size, 0, 0, 300, 300);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(resolve, 'image/jpeg', 0.92);
+      };
+      img.src = url;
+    });
+  }
 
   async function handleSubmit() {
     if (!file) return;
@@ -39,7 +70,8 @@ export default function ScannerPage() {
     setError('');
     setResult(null);
     try {
-      const data = await predict(API_URL, file, model);
+      const processed = await preprocessToSquare(file);
+      const data = await predict(API_URL, processed, model);
       setResult(data);
     } catch (err) {
       setError(
@@ -72,7 +104,7 @@ export default function ScannerPage() {
               <span className={styles.step}>2</span>
               Select Model
             </div>
-            <ModelSelector selected={model} onChange={setModel} />
+            <ModelSelector selected={model} onChange={setModel} disabled={isLoading} />
 
             <button
               className={styles.analyseBtn}
@@ -90,6 +122,15 @@ export default function ScannerPage() {
                 </>
               )}
             </button>
+
+            {warn && !isLoading && (
+              <div className={styles.warnBox}>
+                <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" style={{ flexShrink: 0 }}>
+                  <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                </svg>
+                <span>{warn}</span>
+              </div>
+            )}
 
             {error && (
               <div className={styles.errorBox}>

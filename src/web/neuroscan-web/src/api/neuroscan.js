@@ -12,7 +12,7 @@ export async function predict(baseURL, imageFile, model = 'efficientnet_b3', onU
   const { data } = await client.post(`/predict?model=${model}`, form, {
     headers: { 'Content-Type': 'multipart/form-data' },
     onUploadProgress,
-    timeout: 60_000,
+    timeout: 120_000,
   });
 
   return data;

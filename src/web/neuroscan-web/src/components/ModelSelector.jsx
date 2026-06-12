@@ -7,19 +7,30 @@ const MODELS = [
   { id: 'densenet121',     label: 'DenseNet121',     note: '91.8% accuracy' },
 ];
 
-export default function ModelSelector({ selected, onChange }) {
+export default function ModelSelector({ selected, onChange, disabled }) {
   return (
     <div className={styles.wrap}>
-      {MODELS.map(m => (
-        <button
-          key={m.id}
-          className={[styles.btn, selected === m.id ? styles.active : ''].join(' ')}
-          onClick={() => onChange(m.id)}
-        >
-          <span className={styles.name}>{m.label}</span>
-          <span className={styles.note}>{m.note}</span>
-        </button>
-      ))}
+      {MODELS.map(m => {
+        const isSelected = selected === m.id;
+        const isInactive = disabled && !isSelected;
+        return (
+          <button
+            key={m.id}
+            className={[
+              styles.btn,
+              isSelected ? styles.active : '',
+              isInactive ? styles.inactive : '',
+            ].join(' ')}
+            onClick={() => !disabled && onChange(m.id)}
+            disabled={isInactive}
+          >
+            <span className={styles.name}>{m.label}</span>
+            <span className={styles.note}>
+              {isSelected && disabled ? 'Running…' : m.note}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
