@@ -57,7 +57,7 @@ export default function LandingPage() {
         <div className={styles.navInner}>
           <div className={styles.navBrand}>
             <img src="/NeuroScan/ccre-logo.png" alt="CCRE" className={styles.navLogo} />
-            <span className={styles.navTitle}>CCRE</span>
+            <span className={styles.navTitle}>CCRE <span style={{ fontWeight: 400, opacity: 0.45, margin: '0 4px' }}>|</span> NeuroScan</span>
           </div>
           <Link to="/scan" className={styles.navCta}>Launch Scanner</Link>
         </div>
