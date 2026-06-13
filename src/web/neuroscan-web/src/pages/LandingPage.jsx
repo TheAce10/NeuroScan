@@ -64,7 +64,7 @@ export default function LandingPage() {
           </h1>
           <p className={styles.heroSub}>
             An ensemble of three deep learning models classifies MRI scans into four
-            categories — with Grad-CAM heatmaps showing exactly where the model looked.
+            categories, with Grad-CAM heatmaps showing exactly where the model looked.
             Built to assess how ready AI is to contribute to medical expertise.
           </p>
           <div className={styles.heroBtns}>

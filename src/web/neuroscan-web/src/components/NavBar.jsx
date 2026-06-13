@@ -25,7 +25,7 @@ export default function NavBar() {
         </div>
       </nav>
       <div className={styles.disclaimer}>
-        For research and educational purposes only — not for clinical diagnosis or medical decision-making.
+        For research and educational purposes only, not for clinical diagnosis or medical decision-making.
       </div>
     </>
   );

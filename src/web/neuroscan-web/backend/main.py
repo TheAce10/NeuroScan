@@ -107,7 +107,7 @@ loaded: Dict[str, dict] = {}
 def try_load(name: str) -> bool:
     cfg = MODEL_CONFIGS[name]
     if not cfg["weights"].exists():
-        print(f"  [skip] {name} — weights not found at {cfg['weights']}")
+        print(f"  [skip] {name} - weights not found at {cfg['weights']}")
         return False
     try:
         model, target_layer = cfg["builder"]()
@@ -133,7 +133,7 @@ async def lifespan(app):
     for name in MODEL_CONFIGS:
         try_load(name)
     if not loaded:
-        raise RuntimeError("No models loaded — check weights paths")
+        raise RuntimeError("No models loaded. Check weights paths")
     print(f"Ready: {list(loaded.keys())}\n")
     yield
 
@@ -143,7 +143,7 @@ async def lifespan(app):
 def gradcam(model: nn.Module, target_layer: nn.Module,
             x: torch.Tensor, class_idx: int) -> np.ndarray:
     """
-    Grad-CAM using tensor-level gradient hooks — reliable even when all
+    Grad-CAM using tensor-level gradient hooks. Reliable even when all
     model parameters have requires_grad=False (inference-only loading).
     """
     activations: list = [None]

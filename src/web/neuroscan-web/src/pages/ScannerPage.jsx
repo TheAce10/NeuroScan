@@ -53,7 +53,7 @@ export default function ScannerPage() {
 
       if (avgSat > 0.15) {
         setWarn({
-          text: 'This image appears to be in colour. Brain MRI scans are grayscale — any result produced will be meaningless. Please upload a T1 or T2-weighted MRI scan.',
+          text: 'This image appears to be in colour. Brain MRI scans are grayscale. Any result produced will be meaningless. Please upload a T1 or T2-weighted MRI scan.',
           strong: true,
         });
       } else {
@@ -100,7 +100,7 @@ export default function ScannerPage() {
       setError(
         err.response?.data?.detail ??
         err.message ??
-        'An error occurred. The API may be starting up — please try again in a moment.'
+        'An error occurred. The API may be starting up, please try again in a moment.'
       );
     } finally {
       setIsLoading(false);
@@ -219,7 +219,7 @@ export default function ScannerPage() {
                     </svg>
                     <div>
                       <strong>Low confidence ({Math.round((result.confidence ?? 0) * 100)}%)</strong>
-                      <span> — the model is uncertain. This may indicate an ambiguous scan, unusual presentation, or a non-MRI image. Do not rely on this result.</span>
+                      <span>.The model is uncertain. This may indicate an ambiguous scan, unusual presentation, or a non-MRI image. Do not rely on this result.</span>
                     </div>
                   </div>
                 )}
