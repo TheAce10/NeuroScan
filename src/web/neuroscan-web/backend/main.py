@@ -71,6 +71,16 @@ def build_densenet121():
     return m, m.features.denseblock4   # last dense block
 
 
+def build_inception_v3():
+    m = models.inception_v3(weights=None, aux_logits=True)
+    m.AuxLogits.fc = nn.Linear(m.AuxLogits.fc.in_features, len(CLASS_NAMES))
+    m.fc = nn.Sequential(
+        nn.Dropout(p=0.3),
+        nn.Linear(m.fc.in_features, len(CLASS_NAMES)),
+    )
+    return m, m.Mixed_7c   # last inception block before avgpool
+
+
 MODEL_CONFIGS = {
     "efficientnet_b3": {
         "builder":  build_efficientnet_b3,
@@ -99,6 +109,15 @@ MODEL_CONFIGS = {
         "img_size": 224,
         "display":  "DenseNet121",
     },
+    "inception_v3": {
+        "builder":  build_inception_v3,
+        "weights":  resolve_weight(
+            WEIGHTS_ROOT / "inception_v3" / "outputs" / "inception_v3_neuroscan_acc9487.pt",
+            "inception_v3_neuroscan_acc9487.pt",
+        ),
+        "img_size": 299,
+        "display":  "InceptionV3",
+    },
 }
 
 loaded: Dict[str, dict] = {}
@@ -111,7 +130,8 @@ def try_load(name: str) -> bool:
         return False
     try:
         model, target_layer = cfg["builder"]()
-        state = torch.load(cfg["weights"], map_location=DEVICE, weights_only=True)
+        payload = torch.load(cfg["weights"], map_location=DEVICE, weights_only=False)
+        state   = payload["model_state_dict"] if isinstance(payload, dict) and "model_state_dict" in payload else payload
         model.load_state_dict(state)
         model.to(DEVICE).eval()
         loaded[name] = {
@@ -154,7 +174,8 @@ def gradcam(model: nn.Module, target_layer: nn.Module,
     )
 
     with torch.enable_grad():
-        out = model(x.detach().requires_grad_(True))
+        raw = model(x.detach().requires_grad_(True))
+        out = raw[0] if isinstance(raw, tuple) else raw   # InceptionV3 returns (logits, aux) in train mode
         act = activations[0]
         h_bwd = act.register_hook(lambda g: gradients.__setitem__(0, g))
         model.zero_grad()
