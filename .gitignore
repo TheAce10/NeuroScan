@@ -1,0 +1,58 @@
+# Miscellaneous / local-only files not relevant to the published repo
+misc/
+
+# Model weights — large binaries, hosted on Hugging Face Hub
+weights/**
+!weights/README.md
+
+# Keep gitkeep files in otherwise-empty tracked dirs
+!results/.gitkeep
+!figures/.gitkeep
+!docs/.gitkeep
+!tests/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.Python
+*.egg-info/
+.venv/
+venv/
+*.pkl
+
+# Node / frontend build
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Logs
+*.log
+logs/
+
+# Secrets — NEVER commit these
+.env
+.env.*
+!.env.example
+.kaggle/
+kaggle.json
+*_token*
+*_key*
+*_secret*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo *.sln *.sw?
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Compiled / dist output
+*.pt.tmp
