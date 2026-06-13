@@ -35,9 +35,9 @@ const SLIDES = [
 ];
 
 const MODELS = [
-  { name: 'EfficientNetB3', acc: 88.4, glioma: 71, menin: 87 },
-  { name: 'VGG16',          acc: 88.9, glioma: 76, menin: 82 },
-  { name: 'DenseNet121',    acc: 91.8, glioma: 79, menin: 94 },
+  { name: 'EfficientNetB3', acc: 92.0, glioma: 77.8, menin: 91.8 },
+  { name: 'VGG16',          acc: 93.0, glioma: 79.3, menin: 94.8 },
+  { name: 'DenseNet121',    acc: 91.0, glioma: 80.8, menin: 91.5 },
 ];
 
 export default function LandingPage() {
@@ -129,12 +129,12 @@ export default function LandingPage() {
           <h2 className={styles.sectionTitle}>Model Performance</h2>
           <p className={styles.sectionSub}>
             All models trained on the Brain Tumor MRI Dataset via Kaggle T4 GPU.
-            DenseNet121 uses focal loss to address the glioma/meningioma boundary problem.
+            Evaluated on 1,600 held-out samples across four tumour categories.
           </p>
           <div className={styles.modelCards}>
             {MODELS.map(m => (
-              <div key={m.name} className={`${styles.modelCard} ${m.name === 'DenseNet121' ? styles.modelCardBest : ''}`}>
-                {m.name === 'DenseNet121' && <span className={styles.bestBadge}>Best Model</span>}
+              <div key={m.name} className={`${styles.modelCard} ${m.name === 'VGG16' ? styles.modelCardBest : ''}`}>
+                {m.name === 'VGG16' && <span className={styles.bestBadge}>Best Model</span>}
                 <h3 className={styles.modelName}>{m.name}</h3>
                 <div className={styles.modelAcc}>{m.acc}%</div>
                 <div className={styles.modelAccLabel}>Overall Accuracy</div>

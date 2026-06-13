@@ -84,8 +84,8 @@ MODEL_CONFIGS = {
     "vgg16": {
         "builder":  build_vgg16,
         "weights":  resolve_weight(
-            WEIGHTS_ROOT / "vgg16" / "checkpoints" / "phase2_best.pt",
-            "vgg16_phase2_best.pt",
+            WEIGHTS_ROOT / "vgg16" / "outputs" / "vgg16_neuroscan.pt",
+            "vgg16_neuroscan.pt",
         ),
         "img_size": 224,
         "display":  "VGG16",
