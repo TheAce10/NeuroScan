@@ -1,15 +1,24 @@
 # Model Weights
 
-Not tracked in git. Download from shared drive and place under this directory.
+Weights are **not tracked in git** — download from Hugging Face Hub.
 
-Expected structure:
+## Hugging Face Hub
+
+Repository: https://huggingface.co/The-Ace-000/neuroscan-weights
+
+| File                          | Model          | Accuracy |
+|-------------------------------|----------------|----------|
+| `efficientnet_b3_neuroscan.pt`| EfficientNetB3 | 92.0%    |
+| `vgg16_neuroscan.pt`          | VGG16          | 93.0%    |
+| `densenet121_neuroscan.pt`    | DenseNet121    | 91.0%    |
+
+## Local structure (for running backend locally)
+
 ```
-weights/
-  neuroscan/
-    efficientnet_b3/outputs/efficientnet_b3_neuroscan.pt
-    vgg16/checkpoints/phase2_best.pt
-    densenet121/outputs/densenet121_neuroscan.pt
-  Testing/   ← test split from Brain Tumor MRI Dataset (Kaggle)
+weights/neuroscan/
+  efficientnet_b3/outputs/efficientnet_b3_neuroscan.pt
+  vgg16/outputs/vgg16_neuroscan.pt
+  densenet121/outputs/densenet121_neuroscan.pt
 ```
 
-Dataset: [Brain Tumor MRI Dataset](https://www.kaggle.com/datasets/masoudnickparvar/brain-tumor-mri-dataset)
+The backend (`main.py`) will auto-download from HF Hub if local files are not present.

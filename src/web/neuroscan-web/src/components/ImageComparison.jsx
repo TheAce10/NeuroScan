@@ -16,7 +16,7 @@ export default function ImageComparison({ original, heatmap }) {
         <Panel
           label="Grad-CAM Heatmap"
           src={heatmap ? `data:image/png;base64,${heatmap}` : null}
-          tag="GRAD-CAM"
+          tag="OUTPUT"
           placeholder="Heatmap will appear here"
           onEnlarge={() => setEnlarged({ src: `data:image/png;base64,${heatmap}`, label: 'Grad-CAM Heatmap' })}
           disabled={!heatmap}

@@ -50,6 +50,7 @@
   background: var(--gray-200);
   padding: 2px 8px;
   border-radius: var(--radius-sm);
+  white-space: nowrap;
 }
 
 .imgWrap {

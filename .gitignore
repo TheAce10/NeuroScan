@@ -1,7 +1,11 @@
 # Miscellaneous / local-only files not relevant to the published repo
 misc/
 
-# Model weights — large binaries, hosted on Hugging Face Hub
+# Training/test data — hosted on Kaggle (see data/README.md)
+data/**
+!data/README.md
+
+# Model weights — large binaries, hosted on Hugging Face Hub (see weights/README.md)
 weights/**
 !weights/README.md
 
