@@ -128,7 +128,8 @@ export default function LandingPage() {
         <div className={styles.sectionInner}>
           <h2 className={styles.sectionTitle}>Model Performance</h2>
           <p className={styles.sectionSub}>
-            All models trained on the Brain Tumor MRI Dataset via Kaggle T4 GPU.
+            All models trained on the Brain Tumor MRI Dataset.
+            {/* via Kaggle T4 GPU. */}
             Evaluated on 1,600 held-out samples across four tumour categories.
           </p>
           <div className={styles.modelCards}>
