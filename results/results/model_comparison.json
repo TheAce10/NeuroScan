@@ -1,0 +1,98 @@
+{
+  "efficientnet_b3": {
+    "accuracy": 0.92,
+    "f1_weighted": 0.9181,
+    "precision_weighted": 0.924,
+    "recall_weighted": 0.92,
+    "per_class": {
+      "glioma": {
+        "precision": 0.978,
+        "recall": 0.7775,
+        "f1": 0.8663,
+        "support": 400
+      },
+      "meningioma": {
+        "precision": 0.8995,
+        "recall": 0.9175,
+        "f1": 0.9084,
+        "support": 400
+      },
+      "notumor": {
+        "precision": 0.8825,
+        "recall": 0.995,
+        "f1": 0.9354,
+        "support": 400
+      },
+      "pituitary": {
+        "precision": 0.9362,
+        "recall": 0.99,
+        "f1": 0.9623,
+        "support": 400
+      }
+    }
+  },
+  "vgg16": {
+    "accuracy": 0.93,
+    "f1_weighted": 0.9286,
+    "precision_weighted": 0.9345,
+    "recall_weighted": 0.93,
+    "per_class": {
+      "glioma": {
+        "precision": 0.9906,
+        "recall": 0.7925,
+        "f1": 0.8806,
+        "support": 400
+      },
+      "meningioma": {
+        "precision": 0.8773,
+        "recall": 0.9475,
+        "f1": 0.9111,
+        "support": 400
+      },
+      "notumor": {
+        "precision": 0.907,
+        "recall": 1.0,
+        "f1": 0.9512,
+        "support": 400
+      },
+      "pituitary": {
+        "precision": 0.9631,
+        "recall": 0.98,
+        "f1": 0.9715,
+        "support": 400
+      }
+    }
+  },
+  "densenet121": {
+    "accuracy": 0.91,
+    "f1_weighted": 0.9093,
+    "precision_weighted": 0.9123,
+    "recall_weighted": 0.91,
+    "per_class": {
+      "glioma": {
+        "precision": 0.9335,
+        "recall": 0.8075,
+        "f1": 0.866,
+        "support": 400
+      },
+      "meningioma": {
+        "precision": 0.8472,
+        "recall": 0.915,
+        "f1": 0.8798,
+        "support": 400
+      },
+      "notumor": {
+        "precision": 0.9124,
+        "recall": 0.99,
+        "f1": 0.9496,
+        "support": 400
+      },
+      "pituitary": {
+        "precision": 0.9562,
+        "recall": 0.9275,
+        "f1": 0.9416,
+        "support": 400
+      }
+    }
+  }
+}
