@@ -5,9 +5,9 @@ misc/
 data/**
 !data/README.md
 
-# Model weights — large binaries, hosted on Hugging Face Hub (see weights/README.md)
-weights/**
-!weights/README.md
+# Model weights — large binaries, hosted on Hugging Face Hub (see misc/weights/README.md)
+misc/weights/**
+!misc/weights/README.md
 
 # Keep gitkeep files in otherwise-empty tracked dirs
 !results/.gitkeep

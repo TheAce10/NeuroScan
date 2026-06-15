@@ -9,8 +9,8 @@ import numpy as np
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, classification_report
 
 CLASS_NAMES  = ['glioma', 'meningioma', 'notumor', 'pituitary']
-WEIGHTS_ROOT = Path(__file__).parent / "weights" / "neuroscan"
-TEST_DIR     = Path(__file__).parent / "weights" / "Testing"
+WEIGHTS_ROOT = Path(__file__).parent.parent.parent / "misc" / "weights"
+TEST_DIR     = Path(__file__).parent.parent.parent / "data" / "Testing"
 DEVICE       = torch.device("cpu")
 MEAN, STD    = [0.485,0.456,0.406], [0.229,0.224,0.225]
 

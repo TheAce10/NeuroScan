@@ -15,7 +15,7 @@ Brain tumour MRI classification using transfer learning. An ensemble of three CN
 | **DenseNet121** (focal loss) | **91.8%** | **79%** | **94%** |
 | **Ensemble** | — | — | — |
 
-All models trained on the [Brain Tumor MRI Dataset](https://www.kaggle.com/datasets/masoudnickparvar/brain-tumor-mri-dataset) via Kaggle T4 GPU.
+All models trained on the [Brain Tumor MRI Dataset](https://www.kaggle.com/datasets/masoudnickparvar/brain-tumor-mri-dataset) (5,600 training / 1,600 test images, 4 balanced classes).
 
 ---
 

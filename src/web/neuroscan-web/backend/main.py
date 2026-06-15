@@ -20,7 +20,7 @@ DEVICE       = torch.device("cpu")
 # When running on HF Spaces, weights are downloaded from HF Hub.
 # When running locally, weights are loaded from the local path.
 HF_REPO      = "The-Ace-000/neuroscan-weights"
-WEIGHTS_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent / "weights"
+WEIGHTS_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent / "misc" / "weights"
 
 
 def resolve_weight(local_path: Path, hf_filename: str) -> Path:
