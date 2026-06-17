@@ -3,11 +3,13 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Dict, Optional
 
+import cv2
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
+from scipy.ndimage import binary_fill_holes
 from torchvision import models, transforms
 from PIL import Image
 
@@ -39,6 +41,44 @@ def resolve_weight(local_path: Path, hf_filename: str) -> Path:
         return local_path
 MEAN         = [0.485, 0.456, 0.406]
 STD          = [0.229, 0.224, 0.225]
+
+
+# ── SkullStripTransform ────────────────────────────────────────────────────────
+
+class SkullStripTransform:
+    """Center-biased Otsu skull stripping for 2D MRI JPEGs."""
+    def __init__(self, closing_kernel=25, center_sigma=0.33, edge_floor=0.15):
+        self.close_k      = cv2.getStructuringElement(
+            cv2.MORPH_ELLIPSE, (closing_kernel, closing_kernel)
+        )
+        self.center_sigma = center_sigma
+        self.edge_floor   = edge_floor
+
+    def _center_bias(self, gray: np.ndarray) -> np.ndarray:
+        h, w   = gray.shape
+        Y, X   = np.ogrid[:h, :w]
+        sigma  = min(h, w) * self.center_sigma
+        weight = np.exp(-((X - w // 2) ** 2 + (Y - h // 2) ** 2) / (2 * sigma ** 2))
+        weight = self.edge_floor + (1.0 - self.edge_floor) * weight
+        return (gray.astype(np.float32) * weight).clip(0, 255).astype(np.uint8)
+
+    def __call__(self, img: Image.Image) -> Image.Image:
+        img_np = np.array(img)
+        gray   = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
+        biased = self._center_bias(gray)
+        _, mask = cv2.threshold(biased, 0, 255,
+                                cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, self.close_k)
+        num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(mask)
+        if num_labels > 1:
+            largest = 1 + int(np.argmax(stats[1:, cv2.CC_STAT_AREA]))
+            mask    = (labels == largest).astype(np.uint8) * 255
+        mask = binary_fill_holes(mask > 0).astype(np.uint8) * 255
+        mask_3ch = np.stack([mask, mask, mask], axis=-1).astype(np.float32) / 255.0
+        return Image.fromarray((img_np.astype(np.float32) * mask_3ch).astype(np.uint8))
+
+
+_skull_strip = SkullStripTransform()
 
 
 # ── model builders ─────────────────────────────────────────────────────────────
@@ -73,31 +113,44 @@ def build_densenet121():
 
 MODEL_CONFIGS = {
     "efficientnet_b3": {
-        "builder":  build_efficientnet_b3,
-        "weights":  resolve_weight(
+        "builder":      build_efficientnet_b3,
+        "weights":      resolve_weight(
             WEIGHTS_ROOT / "efficientnet_b3" / "outputs" / "efficientnet_b3_neuroscan.pt",
             "efficientnet_b3_neuroscan.pt",
         ),
-        "img_size": 224,
-        "display":  "EfficientNetB3",
+        "img_size":     224,
+        "display":      "EfficientNetB3",
+        "skull_strip":  False,
     },
     "vgg16": {
-        "builder":  build_vgg16,
-        "weights":  resolve_weight(
+        "builder":      build_vgg16,
+        "weights":      resolve_weight(
             WEIGHTS_ROOT / "vgg16" / "outputs" / "vgg16_neuroscan.pt",
             "vgg16_neuroscan.pt",
         ),
-        "img_size": 224,
-        "display":  "VGG16",
+        "img_size":     224,
+        "display":      "VGG16",
+        "skull_strip":  False,
+    },
+    "vgg16_skullstrip": {
+        "builder":      build_vgg16,
+        "weights":      resolve_weight(
+            WEIGHTS_ROOT / "vgg16_skullstrip_neuroscan.pt",
+            "vgg16_skullstrip_neuroscan.pt",
+        ),
+        "img_size":     224,
+        "display":      "VGG16 (Skull-Strip)",
+        "skull_strip":  True,
     },
     "densenet121": {
-        "builder":  build_densenet121,
-        "weights":  resolve_weight(
+        "builder":      build_densenet121,
+        "weights":      resolve_weight(
             WEIGHTS_ROOT / "densenet121" / "outputs" / "densenet121_neuroscan.pt",
             "densenet121_neuroscan.pt",
         ),
-        "img_size": 224,
-        "display":  "DenseNet121",
+        "img_size":     224,
+        "display":      "DenseNet121",
+        "skull_strip":  False,
     },
 }
 
@@ -119,6 +172,7 @@ def try_load(name: str) -> bool:
             "target_layer": target_layer,
             "img_size":     cfg["img_size"],
             "display":      cfg["display"],
+            "skull_strip":  cfg.get("skull_strip", False),
         }
         print(f"  [ok]   {name}")
         return True
@@ -208,13 +262,13 @@ def health():
 
 
 def _infer(entry: dict, img: Image.Image) -> tuple:
-    """Run inference on a single loaded model entry. Returns (probs, tensor, img_resized)."""
-    size   = entry["img_size"]
-    tf     = transforms.Compose([
-        transforms.Resize((size, size)),
-        transforms.ToTensor(),
-        transforms.Normalize(MEAN, STD),
-    ])
+    """Run inference on a single loaded model entry. Returns (probs, tensor)."""
+    size = entry["img_size"]
+    steps = [transforms.Resize((size, size))]
+    if entry.get("skull_strip"):
+        steps.append(_skull_strip)
+    steps += [transforms.ToTensor(), transforms.Normalize(MEAN, STD)]
+    tf     = transforms.Compose(steps)
     tensor = tf(img).unsqueeze(0).to(DEVICE)
     with torch.no_grad():
         probs = F.softmax(entry["model"](tensor), dim=1)[0]
