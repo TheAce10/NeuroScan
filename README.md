@@ -16,7 +16,7 @@ Evaluated on 1,600 balanced test samples (400 per class). All models trained wit
 | EfficientNetB3 | 92.0% | 91.8% | 77.8% | 91.8% |
 | DenseNet121 | 91.0% | 90.9% | 80.8% | 91.5% |
 
-All models trained on the [Brain Tumor MRI Dataset](https://www.kaggle.com/datasets/masoudnickparvar/brain-tumor-mri-dataset) (7,023 MRI scans · 5,712 training / 1,311 test · 4 classes).
+All models trained on the [Brain Tumor MRI Dataset](https://www.kaggle.com/datasets/masoudnickparvar/brain-tumor-mri-dataset) (7,200 MRI scans · 5,600 training / 1,600 test · 4 classes).
 
 ---
 
