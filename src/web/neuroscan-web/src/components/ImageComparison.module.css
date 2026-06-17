@@ -68,27 +68,6 @@
   object-fit: contain;
 }
 
-.enlargeBtn {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  background: rgba(10,31,60,.7);
-  border: none;
-  color: var(--white);
-  border-radius: var(--radius-sm);
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 150ms ease;
-}
-
-.imgWrap:hover .enlargeBtn {
-  opacity: 1;
-}
-
 .placeholder {
   display: flex;
   flex-direction: column;
@@ -100,11 +79,45 @@
   text-align: center;
 }
 
-/* Lightbox */
+/* ── Toolbar ─────────────────────────────────────────────────── */
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.toolbarBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--blue-800);
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, opacity 150ms ease;
+  white-space: nowrap;
+}
+
+.toolbarBtn:hover:not(:disabled) {
+  background: var(--gray-50);
+  border-color: var(--blue-800);
+}
+
+.toolbarBtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ── Lightbox ────────────────────────────────────────────────── */
 .lightbox {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.75);
+  background: rgba(0,0,0,.8);
   z-index: 200;
   display: flex;
   align-items: center;
@@ -122,7 +135,7 @@
   background: var(--white);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  max-width: 700px;
+  max-width: 1100px;
   width: 100%;
   box-shadow: var(--shadow-lg);
 }
@@ -146,12 +159,43 @@
   align-items: center;
   opacity: 0.8;
   transition: opacity 150ms ease;
+  cursor: pointer;
 }
 .closeBtn:hover { opacity: 1; }
 
+.lightboxGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--gray-900);
+}
+
+@media (max-width: 700px) {
+  .lightboxGrid { grid-template-columns: 1fr; }
+}
+
+.lightboxSide {
+  display: flex;
+  flex-direction: column;
+}
+
+.lightboxLabel {
+  padding: 8px 14px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--gray-400);
+  background: rgba(0,0,0,0.35);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.lightboxSide:first-child {
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+
 .lightboxImg {
   width: 100%;
-  max-height: 70vh;
+  max-height: 65vh;
   object-fit: contain;
   background: var(--gray-900);
 }

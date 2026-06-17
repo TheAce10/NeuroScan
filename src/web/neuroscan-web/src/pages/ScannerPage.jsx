@@ -230,7 +230,12 @@ export default function ScannerPage() {
                   <span className={styles.step} style={{ background: 'var(--blue-600)' }}>4</span>
                   Scan Visualisation
                 </div>
-                <ImageComparison original={previewUrl} heatmap={result.heatmap} />
+                <ImageComparison
+                  original={previewUrl}
+                  heatmap={result.heatmap}
+                  modelName={result.model}
+                  predictedClass={result.class}
+                />
               </div>
 
             </div>

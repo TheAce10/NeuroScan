@@ -113,44 +113,34 @@ def build_densenet121():
 
 MODEL_CONFIGS = {
     "efficientnet_b3": {
-        "builder":      build_efficientnet_b3,
-        "weights":      resolve_weight(
-            WEIGHTS_ROOT / "efficientnet_b3" / "outputs" / "efficientnet_b3_neuroscan.pt",
+        "builder":     build_efficientnet_b3,
+        "weights":     resolve_weight(
+            WEIGHTS_ROOT / "efficientnet_b3_skullstrip" / "outputs" / "efficientnet_b3_skullstrip_neuroscan.pt",
             "efficientnet_b3_neuroscan.pt",
         ),
-        "img_size":     224,
-        "display":      "EfficientNetB3",
-        "skull_strip":  False,
+        "img_size":    224,
+        "display":     "EfficientNetB3",
+        "skull_strip": True,
     },
     "vgg16": {
-        "builder":      build_vgg16,
-        "weights":      resolve_weight(
-            WEIGHTS_ROOT / "vgg16" / "outputs" / "vgg16_neuroscan.pt",
+        "builder":     build_vgg16,
+        "weights":     resolve_weight(
+            WEIGHTS_ROOT / "vgg16_skullstrip" / "outputs" / "vgg16_skullstrip_neuroscan.pt",
             "vgg16_neuroscan.pt",
         ),
-        "img_size":     224,
-        "display":      "VGG16",
-        "skull_strip":  False,
-    },
-    "vgg16_skullstrip": {
-        "builder":      build_vgg16,
-        "weights":      resolve_weight(
-            WEIGHTS_ROOT / "vgg16_skullstrip_neuroscan.pt",
-            "vgg16_skullstrip_neuroscan.pt",
-        ),
-        "img_size":     224,
-        "display":      "VGG16 (Skull-Strip)",
-        "skull_strip":  True,
+        "img_size":    224,
+        "display":     "VGG16",
+        "skull_strip": True,
     },
     "densenet121": {
-        "builder":      build_densenet121,
-        "weights":      resolve_weight(
-            WEIGHTS_ROOT / "densenet121" / "outputs" / "densenet121_neuroscan.pt",
+        "builder":     build_densenet121,
+        "weights":     resolve_weight(
+            WEIGHTS_ROOT / "densenet121_skullstrip" / "outputs" / "densenet121_skullstrip_neuroscan.pt",
             "densenet121_neuroscan.pt",
         ),
-        "img_size":     224,
-        "display":      "DenseNet121",
-        "skull_strip":  False,
+        "img_size":    224,
+        "display":     "DenseNet121",
+        "skull_strip": True,
     },
 }
 
