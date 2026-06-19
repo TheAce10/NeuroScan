@@ -37,14 +37,20 @@ CLASS_LABELS = ["Glioma", "Meningioma", "No Tumour", "Pituitary"]
 N_TOTAL      = 1600   # total test samples
 N_CLASS      = 400    # samples per class
 
+# fig1 includes the ensemble alongside the three individual models
+OVERVIEW_MODELS       = MODELS + ["ensemble"]
+OVERVIEW_MODEL_LABELS = MODEL_LABELS + ["Ensemble"]
+
 # ── Wong (2011) colour-blind-safe palette ──────────────────────────────────────
 BLUE   = "#0072B2"
 ORANGE = "#E69F00"
 GREEN  = "#009E73"
 RED    = "#D55E00"
+PURPLE = "#CC79A7"
 
-MODEL_COLORS  = [BLUE, ORANGE, GREEN]
-METRIC_COLORS = [BLUE, ORANGE, GREEN]   # Precision / Recall / F1
+MODEL_COLORS          = [BLUE, ORANGE, GREEN]
+OVERVIEW_MODEL_COLORS = [BLUE, ORANGE, GREEN, PURPLE]
+METRIC_COLORS         = [BLUE, ORANGE, GREEN]   # Precision / Recall / F1
 
 # ── Global style ───────────────────────────────────────────────────────────────
 plt.rcParams.update({
@@ -64,12 +70,6 @@ plt.rcParams.update({
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
-def ci95(p, n):
-    """95% CI for a proportion (normal approximation)."""
-    p = np.clip(p, 0, 1)
-    return 1.96 * np.sqrt(p * (1 - p) / n)
-
-
 def panel_label(ax, letter, x=-0.13, y=1.04):
     ax.text(x, y, letter, transform=ax.transAxes,
             fontsize=13, fontweight="bold", va="top", ha="left")
@@ -104,41 +104,35 @@ def fig1_model_overview():
     metric_keys    = ["accuracy", "f1_weighted", "precision_weighted", "recall_weighted"]
     metric_labels  = ["Accuracy", "Weighted F1", "Weighted\nPrecision", "Weighted\nRecall"]
 
-    vals = np.array([[results[m][k] for k in metric_keys] for m in MODELS])
-    errs = ci95(vals, N_TOTAL)
+    vals = np.array([[results[m][k] for k in metric_keys] for m in OVERVIEW_MODELS])
+    n_models = len(OVERVIEW_MODELS)
 
     x     = np.arange(len(metric_keys))
-    width = 0.22
+    width = 0.8 / n_models
 
     # GridSpec: chart row + table row
-    fig = plt.figure(figsize=(10, 7))
+    fig = plt.figure(figsize=(10.5, 7))
     gs  = GridSpec(2, 1, height_ratios=[3, 1], hspace=0.55)
     ax  = fig.add_subplot(gs[0])
     tax = fig.add_subplot(gs[1])
     tax.axis("off")
 
-    for i, (mlabel, color) in enumerate(zip(MODEL_LABELS, MODEL_COLORS)):
-        offset = (i - 1) * width
+    for i, (mlabel, color) in enumerate(zip(OVERVIEW_MODEL_LABELS, OVERVIEW_MODEL_COLORS)):
+        offset = (i - (n_models - 1) / 2) * width
+        is_ensemble = (mlabel == "Ensemble")
         bars = ax.bar(
             x + offset, vals[i], width,
             color=color, label=mlabel, alpha=0.88,
-            yerr=errs[i], capsize=4,
-            error_kw={"elinewidth": 1.2, "ecolor": "#333"},
+            edgecolor="#333" if is_ensemble else "none",
+            linewidth=1.4 if is_ensemble else 0,
             zorder=3,
         )
         for bar, v in zip(bars, vals[i]):
             ax.text(bar.get_x() + bar.get_width() / 2,
                     bar.get_height() + 0.003,
                     f"{v:.3f}", ha="center", va="bottom",
-                    fontsize=7.5, color="#222")
-
-    # Star for best per metric
-    for j in range(len(metric_keys)):
-        best = int(np.argmax(vals[:, j]))
-        offset = (best - 1) * width
-        top = vals[best, j] + errs[best, j] + 0.013
-        ax.text(x[j] + offset, top, "★", ha="center",
-                fontsize=10, color=MODEL_COLORS[best])
+                    fontsize=7.5, color="#222",
+                    fontweight="bold" if is_ensemble else "normal")
 
     ax.set_xticks(x)
     ax.set_xticklabels(metric_labels, ha="center")
@@ -152,13 +146,13 @@ def fig1_model_overview():
 
     # Shared legend centred below x-axis, above table (same style as fig 3)
     handles, labels = ax.get_legend_handles_labels()
-    ax.legend(handles, labels, loc="upper center", ncol=3,
+    ax.legend(handles, labels, loc="upper center", ncol=4,
               framealpha=0.9, bbox_to_anchor=(0.5, -0.14), fontsize=9)
 
     # Three-line table
     col_labels = ["Model"] + ["Accuracy", "Weighted F1", "W. Precision", "W. Recall"]
     table_data = []
-    for i, (mlabel, row) in enumerate(zip(MODEL_LABELS, vals)):
+    for i, (mlabel, row) in enumerate(zip(OVERVIEW_MODEL_LABELS, vals)):
         best_mask = [int(np.argmax(vals[:, j])) == i for j in range(len(metric_keys))]
         table_data.append(
             [mlabel] + [f"{'*' if best_mask[j] else ''}{row[j]:.4f}"
@@ -182,7 +176,7 @@ def fig1_model_overview():
             cell.set_edgecolor("#333")
             cell.set_linewidth(1.2)
             cell.visible_edges = "TB"
-        elif r == len(MODELS):
+        elif r == n_models:
             cell.visible_edges = "B"
             cell.set_edgecolor("#333")
             cell.set_linewidth(1.0)
@@ -197,7 +191,7 @@ def fig1_model_overview():
             if int(np.argmax(vals[:, j])) == i:
                 tbl[i + 1, j + 1].set_text_props(fontweight="bold")
 
-    tax.set_title("* = best per metric  |  Error bars = 95 % CI (normal approx., n = 1,600)",
+    tax.set_title("* = best per metric  |  Ensemble = soft-vote average of the three models' probabilities",
                   fontsize=8, color="#555", pad=4)
 
     save_fig(fig, "fig1_model_overview")
@@ -209,31 +203,26 @@ def fig1_model_overview():
 def fig2_recall_heatmap():
     recall = np.array([
         [results[m]["per_class"][c]["recall"] for c in CLASSES]
-        for m in MODELS
+        for m in OVERVIEW_MODELS
     ])
-    errs = ci95(recall, N_CLASS)
 
-    fig, ax = plt.subplots(figsize=(7.5, 3.8))
+    fig, ax = plt.subplots(figsize=(7.5, 4.3))
 
     im = ax.imshow(recall, cmap="RdYlGn", vmin=0.70, vmax=1.00, aspect="auto")
 
-    for i in range(len(MODELS)):
+    for i in range(len(OVERVIEW_MODELS)):
         for j in range(len(CLASSES)):
             v  = recall[i, j]
-            e  = errs[i, j]
             fg = "white" if v < 0.80 or v > 0.96 else "#111"
-            ax.text(j, i - 0.10, f"{v:.3f}",
+            ax.text(j, i, f"{v:.3f}",
                     ha="center", va="center",
                     fontsize=11, fontweight="bold", color=fg)
-            ax.text(j, i + 0.22, f"±{e:.3f}",
-                    ha="center", va="center",
-                    fontsize=8, color=fg, alpha=0.85)
 
     ax.set_xticks(range(len(CLASSES)))
     ax.set_xticklabels(CLASS_LABELS, fontsize=10)
-    ax.set_yticks(range(len(MODELS)))
-    ax.set_yticklabels(MODEL_LABELS, fontsize=10)
-    ax.set_title("Per-Class Recall: All Models  (400 samples / class)", pad=10)
+    ax.set_yticks(range(len(OVERVIEW_MODELS)))
+    ax.set_yticklabels(OVERVIEW_MODEL_LABELS, fontsize=10)
+    ax.set_title("Per-Class Recall: All Models + Ensemble  (400 samples / class)", pad=10)
     ax.tick_params(length=0)
     for spine in ax.spines.values():
         spine.set_visible(False)
@@ -243,7 +232,7 @@ def fig2_recall_heatmap():
     cbar.ax.yaxis.set_major_formatter(mticker.PercentFormatter(xmax=1, decimals=0))
 
     fig.text(0.5, -0.04,
-             "Recall = TP / (TP + FN).  Error = 95 % CI (normal approx., n = 400 per class).",
+             "Recall = TP / (TP + FN).  Ensemble = soft-vote average of the three models' probabilities.",
              ha="center", fontsize=8, color="#555")
 
     panel_label(ax, "(b)", x=-0.09)
@@ -257,26 +246,20 @@ def fig3_per_class_metrics():
     metric_keys   = ["precision", "recall", "f1"]
     metric_labels = ["Precision", "Recall", "F1"]
 
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4.8), sharey=True)
+    fig, axes = plt.subplots(1, 4, figsize=(16.5, 4.8), sharey=True)
     x     = np.arange(len(CLASSES))
     width = 0.24
 
     for ax, model, mlabel, panel in zip(
-            axes, MODELS, MODEL_LABELS, ["(a)", "(b)", "(c)"]):
+            axes, OVERVIEW_MODELS, OVERVIEW_MODEL_LABELS, ["(a)", "(b)", "(c)", "(d)"]):
 
         for k, (mkey, mk_label, color) in enumerate(
                 zip(metric_keys, metric_labels, METRIC_COLORS)):
             vals = np.array([results[model]["per_class"][c][mkey] for c in CLASSES])
-            sym_err = ci95(vals, N_CLASS)
-            # Clip asymmetrically: upper bound cannot exceed 1.0
-            err_lo = sym_err
-            err_hi = np.minimum(sym_err, 1.0 - vals)
             offset = (k - 1) * width
             ax.bar(
                 x + offset, vals, width,
                 color=color, label=mk_label, alpha=0.88,
-                yerr=[err_lo, err_hi], capsize=3,
-                error_kw={"elinewidth": 1.1, "ecolor": "#333"},
                 zorder=3,
             )
 
@@ -295,10 +278,9 @@ def fig3_per_class_metrics():
     fig.legend(handles, labels, loc="lower center", ncol=3,
                framealpha=0.9, bbox_to_anchor=(0.5, -0.04), fontsize=9)
 
-    fig.suptitle("Per-Class Precision, Recall and F1  by Model", fontsize=12, y=1.01)
+    fig.suptitle("Per-Class Precision, Recall and F1  by Model + Ensemble", fontsize=12, y=1.01)
     fig.text(0.5, -0.10,
-             "Error bars = 95 % CI (normal approx., n = 400 per class).\n"
-             "CI is exact for recall; approximate for precision and F1 (non-fixed denominators).",
+             "Ensemble = soft-vote average of the three models' class probabilities.",
              ha="center", fontsize=8, color="#555")
 
     save_fig(fig, "fig3_per_class_metrics")
