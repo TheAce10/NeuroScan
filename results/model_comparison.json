@@ -103,8 +103,8 @@
     "per_class": {
       "glioma": {
         "precision": 0.9652,
-        "recall": 0.7625,
-        "f1": 0.852,
+        "recall": 0.789,
+        "f1": 0.8683,
         "support": 400
       },
       "meningioma": {

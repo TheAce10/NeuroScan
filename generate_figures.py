@@ -111,8 +111,8 @@ def fig1_model_overview():
     width = 0.8 / n_models
 
     # GridSpec: chart row + table row
-    fig = plt.figure(figsize=(10.5, 7))
-    gs  = GridSpec(2, 1, height_ratios=[3, 1], hspace=0.55)
+    fig = plt.figure(figsize=(10.5, 8.2))
+    gs  = GridSpec(2, 1, height_ratios=[3, 1.3], hspace=0.75)
     ax  = fig.add_subplot(gs[0])
     tax = fig.add_subplot(gs[1])
     tax.axis("off")
@@ -147,7 +147,7 @@ def fig1_model_overview():
     # Shared legend centred below x-axis, above table (same style as fig 3)
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles, labels, loc="upper center", ncol=4,
-              framealpha=0.9, bbox_to_anchor=(0.5, -0.14), fontsize=9)
+              framealpha=0.9, bbox_to_anchor=(0.5, -0.12), fontsize=9)
 
     # Three-line table
     col_labels = ["Model"] + ["Accuracy", "Weighted F1", "W. Precision", "W. Recall"]
@@ -162,12 +162,12 @@ def fig1_model_overview():
     tbl = tax.table(
         cellText=table_data,
         colLabels=col_labels,
-        loc="center",
+        loc="upper center",
         cellLoc="center",
+        bbox=[0.05, 0.25, 0.9, 0.65],
     )
     tbl.auto_set_font_size(False)
     tbl.set_fontsize(9)
-    tbl.scale(1, 1.5)
 
     # Three-line style: hide all borders, keep top/header/bottom only
     for (r, c), cell in tbl.get_celld().items():
@@ -191,8 +191,10 @@ def fig1_model_overview():
             if int(np.argmax(vals[:, j])) == i:
                 tbl[i + 1, j + 1].set_text_props(fontweight="bold")
 
-    tax.set_title("* = best per metric  |  Ensemble = soft-vote average of the three models' probabilities",
-                  fontsize=8, color="#555", pad=4)
+    tax.text(0.5, 0.04,
+             "* = best per metric  |  Ensemble = soft-vote average of the three models' probabilities",
+             transform=tax.transAxes, ha="center", va="bottom",
+             fontsize=8, color="#555")
 
     save_fig(fig, "fig1_model_overview")
 
